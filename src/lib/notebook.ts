@@ -26,9 +26,9 @@ export async function queryNotebookLM(message: string, conversationId?: string):
         await execAsync('/usr/local/bin/init-nlm-auth');
 
         return new Promise((resolve, reject) => {
-            // Using 'nlm server' command from user-installed package
-            // PATH includes /root/.local/bin where nlm relies
-            const mcpProcess = spawn('nlm', ['server'], {
+            // Using 'notebooklm-mcp' command which is the dedicated MCP server binary
+            // PATH includes /app/venv/bin where it resides
+            const mcpProcess = spawn('notebooklm-mcp', [], {
                 env: process.env,
                 stdio: ['pipe', 'pipe', 'pipe']
             });
