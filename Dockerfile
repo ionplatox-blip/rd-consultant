@@ -1,13 +1,11 @@
 # Base image with Node.js
 FROM node:20-slim AS base
 
-# Install Python and build dependencies
+# Install Python dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    python3-dev \
-    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,10 +27,12 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+# Update PATH to include user-installed binaries
+ENV PATH="/root/.local/bin:${PATH}"
 
-# CACHE BUST: 2026-02-09-20:15 - Switch back to Python CLI approach
-# Install notebooklm-mcp-cli (Python version)
-RUN pip3 install --no-cache-dir --break-system-packages notebooklm-mcp-cli && \
+# CACHE BUST: 2026-02-09-20:30 - Switch to user install
+# Install notebooklm-mcp-cli (Python version) in user space
+RUN pip3 install --no-cache-dir --user notebooklm-mcp-cli && \
     # Create config directory
     mkdir -p /root/.notebooklm-mcp-cli/profiles/default && \
     # Create a script to initialize auth from environment variable
