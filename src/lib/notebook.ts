@@ -19,11 +19,13 @@ export async function queryNotebookLM(message: string, conversationId?: string):
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
-        // Find the notebooklm-mcp command (installed globally via npm)
-        const mcpCommand = 'notebooklm-mcp';
+        // Use node directly to run the globally installed notebooklm-mcp package
+        // This avoids conflicts with the Python notebooklm-mcp-cli command
+        const nodePath = 'node';
+        const mcpPackagePath = '/usr/local/lib/node_modules/notebooklm-mcp/dist/index.js';
 
         return new Promise((resolve, reject) => {
-            const mcpProcess = spawn(mcpCommand, [], {
+            const mcpProcess = spawn(nodePath, [mcpPackagePath], {
                 env: { ...process.env },
                 stdio: ['pipe', 'pipe', 'pipe']
             });
