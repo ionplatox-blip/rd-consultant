@@ -74,7 +74,8 @@ def run_query(query_text, conversation_id=None):
     if not cli_cmd:
         return {"error": "notebooklm-mcp command not found. Is notebooklm-mcp-cli installed?"}
     
-    cmd = [cli_cmd]
+    # The command requires 'server' subcommand to start the MCP server
+    cmd = [cli_cmd, "server"]
 
     # Pass environment variables (including potential NOTEBOOKLM_COOKIES)
     env = os.environ.copy()
