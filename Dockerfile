@@ -30,12 +30,16 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-# Update PATH to include user-installed binaries
-ENV PATH="/root/.local/bin:${PATH}"
+# Update PATH to include virtual environment binaries
+ENV PATH="/app/venv/bin:${PATH}"
 
-# CACHE BUST: 2026-02-09-20:30 - Switch to user install
-# Install notebooklm-mcp-cli (Python version) in user space
-RUN pip3 install --no-cache-dir --user notebooklm-mcp-cli && \
+# CACHE BUST: 2026-02-09-21:10 - Switch to venv install
+# Create venv and install notebooklm-mcp-cli
+RUN python3 -m venv /app/venv && \
+    # Upgrade pip to ensure compatibility
+    /app/venv/bin/pip install --upgrade pip && \
+    # Install package
+    /app/venv/bin/pip install --no-cache-dir notebooklm-mcp-cli && \
     # Create config directory
     mkdir -p /root/.notebooklm-mcp-cli/profiles/default && \
     # Create a script to initialize auth from environment variable
