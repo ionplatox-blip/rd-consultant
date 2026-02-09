@@ -30,7 +30,7 @@ ENV NODE_ENV=production
 
 # Re-install python dependencies in production image
 # (Assuming notebooklm-mcp is in requirements.txt or installed via pip)
-RUN pip3 install --no-cache-dir notebooklm-mcp
+RUN pip3 install --no-cache-dir  --break-system-packages notebooklm-mcp
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
