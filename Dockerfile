@@ -28,14 +28,18 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# CACHE BUST: 2026-02-09-20:03 - Force rebuild to clear Python package
-# Install notebooklm-mcp (Node.js version) globally
-# This version supports NOTEBOOKLM_COOKIES environment variable
-RUN npm install -g notebooklm-mcp && \
-    # Create a wrapper script that will call the correct package
-    echo '#!/bin/sh' > /usr/local/bin/notebooklm-mcp-wrapper && \
-    echo 'exec node $(npm root -g)/notebooklm-mcp/dist/index.js "$@"' >> /usr/local/bin/notebooklm-mcp-wrapper && \
-    chmod +x /usr/local/bin/notebooklm-mcp-wrapper
+# CACHE BUST: 2026-02-09-20:15 - Switch back to Python CLI approach
+# Install notebooklm-mcp-cli (Python version)
+RUN pip3 install --no-cache-dir --break-system-packages notebooklm-mcp-cli && \
+    # Create config directory
+    mkdir -p /root/.notebooklm-mcp-cli/profiles/default && \
+    # Create a script to initialize auth from environment variable
+    echo '#!/bin/sh' > /usr/local/bin/init-nlm-auth && \
+    echo 'if [ -n "$NOTEBOOKLM_COOKIES" ]; then' >> /usr/local/bin/init-nlm-auth && \
+    echo '  mkdir -p /root/.notebooklm-mcp-cli/profiles/default' >> /usr/local/bin/init-nlm-auth && \
+    echo '  echo "{\"cookies\": \"$NOTEBOOKLM_COOKIES\"}" > /root/.notebooklm-mcp-cli/profiles/default/auth.json' >> /usr/local/bin/init-nlm-auth && \
+    echo 'fi' >> /usr/local/bin/init-nlm-auth && \
+    chmod +x /usr/local/bin/init-nlm-auth
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
