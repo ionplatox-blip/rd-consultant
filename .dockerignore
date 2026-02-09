@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+build
+.git
+.env
+*.log
+.DS_Store
+.venv
+__pycache__
