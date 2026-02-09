@@ -67,9 +67,8 @@ def run_query(query_text, conversation_id=None):
     full_query = CONSULTANT_PERSONA + query_text
 
     # Detect environment: use local venv if exists, otherwise assume global python
-    python_path = "/Users/shakhgildyangy/.venv/bin/python"
-    if not os.path.exists(python_path):
-        python_path = "python3"
+    # Use the same Python interpreter that's running this script
+    python_path = sys.executable
         
     cmd = [python_path, "-m", "notebooklm_mcp.server"]
 
@@ -80,7 +79,7 @@ def run_query(query_text, conversation_id=None):
         cmd,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        stderr=sys.stderr,
+        stderr=subprocess.PIPE,  # Capture stderr for debugging
         env=env,
         text=True,
         bufsize=0
@@ -147,9 +146,19 @@ def run_query(query_text, conversation_id=None):
             except: continue
 
     except Exception as e:
-        return {"error": str(e)}
+        # Try to read stderr for more details
+        error_msg = str(e)
+        if process and process.stderr:
+            try:
+                stderr_output = process.stderr.read()
+                if stderr_output:
+                    error_msg = f"{error_msg} | stderr: {stderr_output}"
+            except:
+                pass
+        return {"error": error_msg}
     finally:
-        process.terminate()
+        if process:
+            process.terminate()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
