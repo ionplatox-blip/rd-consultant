@@ -85,8 +85,19 @@ def run_query(query_text, conversation_id=None):
         bufsize=0
     )
 
+    # Check if process started successfully
     if not process or not process.stdin or not process.stdout:
         return {"error": "Failed to start notebooklm-mcp server"}
+    
+    # Give process a moment to fail if it's going to
+    import time
+    time.sleep(0.5)
+    
+    # Check if process is still alive
+    if process.poll() is not None:
+        # Process already exited
+        stderr_output = process.stderr.read() if process.stderr else "No stderr"
+        return {"error": f"Process exited immediately with code {process.returncode} | stderr: {stderr_output}"}
 
     try:
         # 1. Initialize
