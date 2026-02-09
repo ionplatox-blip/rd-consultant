@@ -28,14 +28,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Re-install python dependencies in production image
-RUN pip3 install --no-cache-dir --break-system-packages notebooklm-mcp-cli
+# Install notebooklm-mcp (Node.js version) globally
+# This version supports NOTEBOOKLM_COOKIES environment variable
+RUN npm install -g notebooklm-mcp
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/src/scripts ./src/scripts
 
 EXPOSE 3000
 
