@@ -28,9 +28,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# CACHE BUST: 2026-02-09-20:03 - Force rebuild to clear Python package
 # Install notebooklm-mcp (Node.js version) globally
 # This version supports NOTEBOOKLM_COOKIES environment variable
-RUN npm install -g notebooklm-mcp
+RUN npm install -g notebooklm-mcp && \
+    # Create a wrapper script that will call the correct package
+    echo '#!/bin/sh' > /usr/local/bin/notebooklm-mcp-wrapper && \
+    echo 'exec node $(npm root -g)/notebooklm-mcp/dist/index.js "$@"' >> /usr/local/bin/notebooklm-mcp-wrapper && \
+    chmod +x /usr/local/bin/notebooklm-mcp-wrapper
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
