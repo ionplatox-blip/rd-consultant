@@ -66,11 +66,20 @@ def run_query(query_text, conversation_id=None):
     # Wrap query with persona
     full_query = CONSULTANT_PERSONA + query_text
 
-    # Detect environment: use local venv if exists, otherwise assume global python
-    # Use the same Python interpreter that's running this script
+    # Try different ways to launch the server
+    # 1. Try CLI command (installed via pip)
+    # 2. Fall back to module execution if CLI not found
     python_path = sys.executable
-        
-    cmd = [python_path, "-m", "notebooklm_mcp.server"]
+    
+    # First, try to find the CLI command in the same directory as python
+    import shutil
+    cli_cmd = shutil.which("notebooklm-mcp") or shutil.which("notebooklm-mcp-server")
+    
+    if cli_cmd:
+        cmd = [cli_cmd]
+    else:
+        # Fallback to module execution
+        cmd = [python_path, "-m", "notebooklm_mcp"]
 
     # Pass environment variables (including potential NOTEBOOKLM_COOKIES)
     env = os.environ.copy()
