@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    python3-dev \
+    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -14,7 +16,8 @@ WORKDIR /app
 # ---- Dependencies ----
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci
+# Use npm install instead of clean install to handle potential platform differences
+RUN npm install
 
 # ---- Build ----
 FROM deps AS builder
