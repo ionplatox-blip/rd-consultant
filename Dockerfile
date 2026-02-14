@@ -12,7 +12,7 @@ RUN npm ci
 
 # ---- Build ----
 FROM deps AS builder
-COPY . .\
+COPY . .
 RUN npm run build
 
 # ---- Production ----
