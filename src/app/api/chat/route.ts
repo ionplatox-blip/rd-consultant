@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { queryNotebookLM } from '@/lib/notebook';
+import { queryRAG } from '@/lib/rag';
 
 export async function POST(req: Request) {
     try {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Message is required' }, { status: 400 });
         }
 
-        const response = await queryNotebookLM(message, conversationId);
+        const response = await queryRAG(message, conversationId);
 
         return NextResponse.json(response);
     } catch (error) {
