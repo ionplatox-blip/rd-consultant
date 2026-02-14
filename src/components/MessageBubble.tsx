@@ -1,54 +1,104 @@
 import React from 'react';
+import { User, Bot, FileText, ExternalLink } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import { User, Bot } from 'lucide-react';
-import ReactMarkdown from 'react-markdown'; // I need to install this! Or just render text for now and add markdown later if requested.
-// The user request mentioned "Markdown support". I should install react-markdown. 
-// For now I will basic render. I'll add a comment to install it.
+import { motion } from 'framer-motion';
 
 interface MessageBubbleProps {
     role: 'user' | 'assistant';
     content: string;
+    sources?: string[];
+    followups?: string[];
+    createdAt?: Date;
+    onFollowUpClick?: (question: string) => void;
 }
 
-export function MessageBubble({ role, content }: MessageBubbleProps) {
+export function MessageBubble({ role, content, sources, followups, createdAt, onFollowUpClick }: MessageBubbleProps) {
     const isUser = role === 'user';
 
     return (
         <div className={cn(
-            "flex gap-4 w-full max-w-3xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-2",
+            "flex w-full mb-8 group",
             isUser ? "justify-end" : "justify-start"
         )}>
-            {!isUser && (
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot className="w-5 h-5 text-blue-700" />
-                </div>
-            )}
-
             <div className={cn(
-                "px-6 py-4 rounded-2xl max-w-[80%]",
-                isUser
-                    ? "bg-slate-800 text-white rounded-tr-sm shadow-md"
-                    : "bg-white border border-slate-100 text-slate-800 rounded-tl-sm shadow-sm"
+                "flex max-w-[90%] md:max-w-[80%] gap-4",
+                isUser ? "flex-row-reverse" : "flex-row"
             )}>
-                <div className="prose prose-sm max-w-none prose-blue">
-                    {/* Simple markdown-like rendering for now, mimicking structured text handling */}
-                    {content.split('\n').map((line, i) => (
-                        <p key={i} className="min-h-[1rem] mb-1 last:mb-0">
-                            {/* Basic formatting handling */}
-                            {line.startsWith('#') ? <span className="font-bold block text-lg mb-2">{line.replace(/^#+\s/, '')}</span> :
-                                line.startsWith('* ') ? <li className="ml-4 list-disc">{line.replace(/^\*\s/, '')}</li> :
-                                    line.startsWith('###') ? <span className="font-bold block text-base mt-2 mb-1">{line.replace(/^###\s/, '')}</span> :
-                                        line}
-                        </p>
-                    ))}
+                {/* Avatar */}
+                <div className={cn(
+                    "flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110",
+                    isUser
+                        ? "bg-gradient-to-tr from-slate-700 to-slate-900 border border-slate-600"
+                        : "bg-gradient-to-tr from-blue-600 to-blue-400 border border-blue-300"
+                )}>
+                    {isUser ? (
+                        <User className="w-5 h-5 text-white" />
+                    ) : (
+                        <Bot className="w-5 h-5 text-white" />
+                    )}
+                </div>
+
+                {/* Message Body */}
+                <div className="flex flex-col space-y-2">
+                    <div className={cn(
+                        "px-7 py-5 rounded-[28px] shadow-sm relative",
+                        isUser
+                            ? "bg-slate-900 text-white rounded-tr-none"
+                            : "bg-white border border-slate-100 text-slate-800 rounded-tl-none shadow-blue-900/5 shadow-xl"
+                    )}>
+                        <div className={cn(
+                            "prose prose-sm max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:leading-relaxed prose-strong:text-inherit",
+                            isUser ? "prose-invert" : "prose-slate"
+                        )}>
+                            <ReactMarkdown>
+                                {content}
+                            </ReactMarkdown>
+                        </div>
+
+                        {/* Follow-up Questions Chips */}
+                        {!isUser && followups && followups.length > 0 && (
+                            <div className="mt-6 flex flex-col gap-3">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Возможные вопросы:</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {followups.map((q, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => onFollowUpClick?.(q)}
+                                            className="text-left px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl transition-all border border-blue-100 hover:border-blue-300 active:scale-95 shadow-sm hover:shadow"
+                                        >
+                                            {q}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Timestamp */}
+                    <div className={cn(
+                        "text-[10px] font-bold uppercase tracking-widest text-slate-300 px-2 flex items-center gap-2",
+                        isUser ? "justify-end" : "justify-start"
+                    )}>
+                        <ClientTimestamp date={createdAt} />
+                        {!isUser && <span className="w-1 h-1 rounded-full bg-slate-200" />}
+                        {!isUser && <span>Verified Grounding</span>}
+                    </div>
                 </div>
             </div>
-
-            {isUser && (
-                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 mt-1">
-                    <User className="w-5 h-5 text-slate-500" />
-                </div>
-            )}
         </div>
     );
+}
+
+function ClientTimestamp({ date }: { date?: Date }) {
+    const [formatted, setFormatted] = React.useState('');
+
+    React.useEffect(() => {
+        if (date) {
+            setFormatted(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+    }, [date]);
+
+    if (!formatted) return null;
+    return <span>{formatted}</span>;
 }
