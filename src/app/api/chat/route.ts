@@ -3,13 +3,16 @@ import { queryRAG } from '@/lib/rag';
 
 export async function POST(req: Request) {
     try {
-        const { message, conversationId } = await req.json();
+        const { message, messages, conversationId } = await req.json();
 
-        if (!message) {
-            return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+        if (!message && (!messages || messages.length === 0)) {
+            return NextResponse.json({ error: 'Message or messages array is required' }, { status: 400 });
         }
 
-        const response = await queryRAG(message, conversationId);
+        // Support both single message and history
+        const messageHistory = (messages && messages.length > 0) ? messages : [{ role: 'user', content: message }];
+
+        const response = await queryRAG(messageHistory, conversationId);
 
         return NextResponse.json(response);
     } catch (error) {

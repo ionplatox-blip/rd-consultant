@@ -1,9 +1,9 @@
-import RDConsultant from '@/components/RDConsultant';
+import { ChatInterface } from '@/components/ChatInterface';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50">
-      <RDConsultant />
+    <main className="min-h-screen bg-white">
+      <ChatInterface />
     </main>
   );
 }

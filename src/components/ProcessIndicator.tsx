@@ -1,13 +1,13 @@
 import React from 'react';
 import { Loader2, CheckCircle2, Search, FileText, BrainCircuit } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Assuming we have a utils file or will create one. I'll inline if needed, but standard is lib/utils.
+import { cn } from '@/lib/utils';
 
 
 // Steps in the consultation process
 const STEPS = [
-    { id: 'query', label: 'Analyzing Request', icon: Search },
-    { id: 'retrieve', label: 'Consulting Knowledge Base', icon: FileText },
-    { id: 'synthesize', label: 'Synthesizing Answer', icon: BrainCircuit },
+    { id: 'query', label: 'Анализирую запрос', icon: Search },
+    { id: 'retrieve', label: 'Поиск в базе знаний', icon: FileText },
+    { id: 'synthesize', label: 'Формирую ответ', icon: BrainCircuit },
 ];
 
 interface ProcessIndicatorProps {
